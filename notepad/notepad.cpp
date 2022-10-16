@@ -27,11 +27,11 @@ char* prioritetBuf = new char[100];
 
 int priority = 0;
 int i = 0;
+int fileNumPr;
 
 string prioritet;
 string sav;
 string numberRecordList;
-int fileNumPr;
 string fileNumPusto;
 string buffer;
 
@@ -762,6 +762,10 @@ void deleteRecordList(int d)
 						cout << " ." << endl;
 
 					}
+					else
+					{
+						cout << " Ошибка удаления файла. " << endl;
+					}
 
 					d--;
 
@@ -769,10 +773,6 @@ void deleteRecordList(int d)
 					filesNumber.open("number.txt", ios::out);
 					filesNumber << d;
 					filesNumber.close();
-
-					string p;
-					p = fileName + ".txt";
-					remove(p.c_str()) == 0;
 				
 					cout << endl << " Запись успешно удалена. " << endl << endl;
 					Sleep(700);
