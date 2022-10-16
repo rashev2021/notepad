@@ -6,7 +6,6 @@
 #include <conio.h>
 #include <stdlib.h>
 #include <ctime>
-#pragma warning(disable : 4996)
 
 using namespace std;
 
@@ -28,27 +27,26 @@ char* prioritetBuf = new char[100];
 
 int priority = 0;
 int i = 0;
-int number = 0;
 
 string prioritet;
 string sav;
 string numberRecordList;
-string fileName;
-string fileNumPr;
+int fileNumPr;
 string fileNumPusto;
 string buffer;
 
 void menu();
+void newList(int c);
 void returnMenu();
 void previevRecordlist();
-void readRecordList();
+void readRecordList(int r);
 void searchRecordList();
-void sortRecordList();
-void sort1();
-void sort2();
-void sort3();
-void redactorRecordFiles();
-void deleteRecordList();
+void sortRecordList(int b);
+void sort1(int a1, int n, bool t);
+void sort2(int a2, int n, bool t2);
+void sort3(int a3, int n, bool t3);
+void redactorRecordFiles(int p);
+void deleteRecordList(int d);
 void cikl();
 
 int main()
@@ -64,15 +62,12 @@ int main()
 	
 }
 
-void newRecordList()
+void newRecordList(int n)
 {
-
-		time_t rawtime;
-		time(&rawtime);
 
 		cout << " Добавить новую запись." << endl << endl;
 
-		number++;
+		n++;
 
 		cout << " Введите название записи: ";
 		cin.get();
@@ -97,59 +92,73 @@ void newRecordList()
 			priority = 1;
 			prioritet = "Высокий";
 			cout << " Выбран приоритет - Высокий." << endl;
+			newList(n);
 			break;
 		case '2':
 			priority = 2;
 			prioritet = "Средний";
 			cout << " Выбран приоритет - Средний." << endl;
+			newList(n);
 			break;
 		case '3':
 			priority = 3;
 			prioritet = "Низкий";
 			cout << " Выбран приоритет - Низкий." << endl;
+			newList(n);
 			break;
 		default:
 			cout << " Введено неверное значение. Приоритет по умолчанию будет \"Средний\"." << endl;
 			priority = 2;
 			prioritet = "Средний";
+			newList(n);
 			break;
 		}
-														  
-		cout << " Дата и время создания записи: " << ctime(&rawtime);
-		date = ctime(&rawtime);
 
-		ofstream filesNumber;
-		filesNumber.open("number.txt", ios::out);
-		filesNumber << number;
-		filesNumber.close();
+}
+void newList(int c)
+{
 
-		numberRecordList = to_string(number);
+	SYSTEMTIME time;
+	GetLocalTime(&time);
 
-		cikl();
+	cout << " Дата и время создания записи: " << time.wDay << "." << time.wMonth << "." << time.wYear << " / " << time.wHour << ":" 
+		 << time.wMinute << ":" << time.wSecond << endl;
 
-		ofstream filesWriteListNumber;
-		filesWriteListNumber.open(numberRecordList + ".txt", ios::out);
-		filesWriteListNumber << endl;
-		filesWriteListNumber << number << endl;
-		filesWriteListNumber << name << endl;
-		filesWriteListNumber << description << endl;
-		filesWriteListNumber << prioritet << endl;
-		filesWriteListNumber << date;
-		filesWriteListNumber << priority << endl;
-		filesWriteListNumber << endl;
-		filesWriteListNumber.close();
+	ofstream filesNumber;
+	filesNumber.open("number.txt", ios::out);
+	filesNumber << c;
+	filesNumber.close();
 
-		ofstream filesListNumber;
-		filesListNumber.open("buffer.txt", ios::out);
-		filesListNumber << endl;
-		filesListNumber << " Запись номер: " << number << endl;
-		filesListNumber << " Название:     " << name << endl;
-		filesListNumber << " Описание:     " << description << endl;
-		filesListNumber << " Приоритет:    " << prioritet << endl;
-		filesListNumber << " Дата:         " << date << endl;
-		filesListNumber << " ________________ " << endl;
-		filesListNumber.close();
-		
+	numberRecordList = to_string(c);
+
+	cikl();
+
+	ofstream filesWriteListNumber;
+	filesWriteListNumber.open(numberRecordList + ".txt", ios::out);
+	filesWriteListNumber << endl;
+	filesWriteListNumber << c << endl;
+	filesWriteListNumber << name << endl;
+	filesWriteListNumber << description << endl;
+	filesWriteListNumber << prioritet << endl;
+	filesWriteListNumber << time.wDay << "." << time.wMonth << "." << time.wYear << "___" << time.wHour << ":"
+		                 << time.wMinute << ":" << time.wSecond << endl;;
+	filesWriteListNumber << priority << endl;
+	filesWriteListNumber << endl;
+	filesWriteListNumber.close();
+
+	ofstream filesListNumber;
+	filesListNumber.open("bufferWrite.txt", ios::out);
+	filesListNumber << endl;
+	filesListNumber << " Запись номер: " << c << endl;
+	filesListNumber << " Название:     " << name << endl;
+	filesListNumber << " Описание:     " << description << endl;
+	filesListNumber << " Приоритет:    " << prioritet << endl;
+	filesListNumber << " Дата:         " << time.wDay << "." << time.wMonth << "." << time.wYear << " / " << time.wHour << ":"
+		                                 << time.wMinute << ":" << time.wSecond << endl;
+	filesListNumber << " ________________ " << endl;
+	filesListNumber.close();
+
+
 	cout << endl;
 	cout << " Нажмите любую клавишу чтобы сохранить запись: ";
 	cin >> sav;
@@ -176,7 +185,7 @@ void previevRecordlist()
 
 	cout << " Запись успешно создана: " << endl << endl;
 
-	ifstream files("buffer.txt");
+	ifstream files("bufferWrite.txt");
 
 	while (!files.eof())
 	{
@@ -195,14 +204,19 @@ void searchRecordList()
 	cout << " Поиск записей";
 
 }
-void sortRecordList()
+void sortRecordList(int b)
 {
 
 	string filename = "bufferWrite.txt";
 
+	int next = 0;
+	bool temp = false;
+
 	if (remove(filename.c_str()) == 0)
 	{
 		cout << endl << " " << " Обновление списка ";
+
+		
 
 		Sleep(700);
 		cout << " .";
@@ -215,7 +229,7 @@ void sortRecordList()
 		system("cls");
 	}
 
-	if (number == 0)
+	if (b == 0)
 	{
 		cout << endl << " Вы не создали ни одной записи для сортировки." << endl;
 
@@ -250,15 +264,15 @@ void sortRecordList()
 			{
 			case '1':
 				system("cls");
-				sort1();
+				sort1(b, next, temp);
 				break;
 			case '2':
 				system("cls");
-				sort2();
+				sort2(b, next, temp);
 				break;
 			case '3':
 				system("cls");
-				sort3();
+				sort3(b, next, temp);
 				break;
 			default:
 				system("cls");
@@ -270,15 +284,14 @@ void sortRecordList()
 	}
 	
 }	
-void sort1()
+void sort1(int a1, int n, bool t)
 {
 
 	cout << " Список отсортирован по приоритету - Высокий" << endl;
 
 	int count = 1;
-	bool next = false;
-
-	for (int j = 1; j < number; j++)
+	
+	for (int j = 1; j <= a1; j++)
 	{
 		buffer = to_string(count);
 
@@ -290,8 +303,7 @@ void sort1()
 		filesWriteListNumber >> dateBuf;
 		filesWriteListNumber >> fileNumPr;
 
-
-		if (fileNumPr == "1")
+		if (fileNumPr == 1)
 		{
 			ofstream files;
 			files.open("bufferWrite.txt", ios::app);
@@ -305,26 +317,20 @@ void sort1()
 			files.close();
 
 			count++;
-			next = false;
+			t = true;
 		}
 
 		else
 		{
 			count++;
-			next = true;
-			continue;
+			n = 1;
 		}
 
 	}
 
-	if (next == true)
+	if(t == true)
 	{
-		cout << " Нет записей под этим приортитетом." << endl;
-		returnMenu();
-	}
-
-	else
-	{
+		n = 0;
 
 		ifstream files("bufferWrite.txt");
 
@@ -338,18 +344,22 @@ void sort1()
 		files.close();
 	}
 
+	if (n == 1)
+	{
+		cout << " Нет записей под этим приоритетом." << endl;
+		returnMenu();
+	}
 
 	returnMenu();
 }
-void sort2()
+void sort2(int a2, int n, bool t2)
 {
 
 	cout << " Список отсортирован по приоритету - Средний." << endl;
 
 	int count = 1;
-	bool next = false;
 
-	for (int j = 1; j < number; j++)
+	for (int j = 1; j <= a2; j++)
 	{
 		buffer = to_string(count);
 
@@ -361,9 +371,9 @@ void sort2()
 		filesWriteListNumber >> dateBuf;
 		filesWriteListNumber >> fileNumPr;
 
-
-		if (fileNumPr == "2")
+		if (fileNumPr == 2)
 		{
+
 			ofstream files;
 			files.open("bufferWrite.txt", ios::app);
 			files << endl;
@@ -376,26 +386,22 @@ void sort2()
 			files.close();
 
 			count++;
-			next = false;
+			t2 = true;
 		}
 
 		else
 		{
 			count++;
-			next = true;
-			continue;
+			n = 1;
 		}
 
 	}
 
-	if (next == true)
+	if(t2 == true)
 	{
-		cout << " Нет записей под этим приортитетом." << endl;
-		returnMenu();
-    }
 
-	else
-	{
+		n = 0;
+
 		ifstream files("bufferWrite.txt");
 
 		while (!files.eof())
@@ -408,17 +414,22 @@ void sort2()
 		files.close();
 	}
 
+	if (n == 1)
+	{
+		cout << " Нет записей под этим приоритетом." << endl;
+		returnMenu();
+	}
+
 	returnMenu();
 }
-void sort3()
+void sort3(int a3, int n, bool t3)
 {
 
 	cout << " Список отсортирован по приоритету - Низкий." << endl;
 
 	int count = 1;
-	bool next = false;
 	
-	for (int j = 1; j < number; j++)
+	for (int j = 1; j <= a3; j++)
 	{
 		buffer = to_string(count);
 
@@ -430,7 +441,7 @@ void sort3()
 		filesWriteListNumber >> dateBuf;
 		filesWriteListNumber >> fileNumPr;
 
-		if (fileNumPr == "3")
+		if (fileNumPr == 3)
 		{
 			ofstream files;
 			files.open("bufferWrite.txt", ios::app);
@@ -444,27 +455,23 @@ void sort3()
 			files.close();
 
 			count++;
-			next = false;
+			t3 = true;
 			
 		}
 
 		else
 		{
 			count++;
-			next = true;
-			continue;
+			n = 1;
 			
 		}
 
 	}
+	
+	if(t3 == true)
+	{
+		n = 0;
 
-	if (next == true)
-	{
-		cout << " Нет записей под этим приортитетом." << endl;
-		returnMenu();
-	}
-	else
-	{
 		ifstream files("bufferWrite.txt");
 
 		while (!files.eof())
@@ -477,9 +484,15 @@ void sort3()
 		files.close();
 	}
 
+	if (n == 1)
+	{
+		cout << " Нет записей под этим приоритетом." << endl;
+		returnMenu();
+	}
+
 		returnMenu();
 }
-void readRecordList()
+void readRecordList(int r)
 {
 
 	int count = 1;
@@ -501,7 +514,7 @@ void readRecordList()
 		system("cls");
 	}
 
-	for (int j = 1; j < number; j++)
+	for (int j = 1; j <= r; j++)
 	{
 		buffer = to_string(count);
 
@@ -520,7 +533,8 @@ void readRecordList()
 		files << " Название:     " << nameBuf << endl;
 		files << " Описание:     " << descriptionBuf << endl;
 		files << " Приоритет:    " << prioritetBuf << endl;
-		files << " Дата:         " << dateBuf << endl;
+		files << " Дата:         " << dateBuf << endl;;
+			                     
 		files << " ________________ " << endl;
 		files.close();
 
@@ -531,7 +545,7 @@ void readRecordList()
 
 	ifstream files("bufferWrite.txt");
 
-	if (!files.is_open())
+	if (!files.is_open() == true)
 	{
 		cout << endl << " Вы не создали ни одной записи" << endl;
 
@@ -564,11 +578,8 @@ void readRecordList()
 	returnMenu();
 
 }
-void redactorRecordFiles()
+void redactorRecordFiles(int p)
 {
-
-	time_t rawtime;
-	time(&rawtime);
 
 	cout << endl <<  " Изменить запись." << endl;
 
@@ -620,21 +631,25 @@ void redactorRecordFiles()
 		break;
 	}
 
-	cout << " Дата и время создания записи: " << ctime(&rawtime);
-	date = ctime(&rawtime);
+	SYSTEMTIME time;
+	GetLocalTime(&time);
+
+	cout << " Дата и время создания записи: " << time.wDay << "." << time.wMonth << "." << time.wYear << " / " << time.wHour << ":"
+		 << time.wMinute << ":" << time.wSecond << endl;
 	
-	numberRecordList = to_string(number);
+	numberRecordList = to_string(p);
 
 	cikl();
 
 	ofstream filesWriteListNumber;
 	filesWriteListNumber.open(numberRecordList + ".txt", ios::out);
 	filesWriteListNumber << endl;
-	filesWriteListNumber << number << endl;
+	filesWriteListNumber << p << endl;
 	filesWriteListNumber << name << endl;
 	filesWriteListNumber << description << endl;
 	filesWriteListNumber << prioritet << endl;
-	filesWriteListNumber << date << endl;
+	filesWriteListNumber << time.wDay << "." << time.wMonth << "." << time.wYear << " / " << time.wHour << ":"
+		                 << time.wMinute << ":" << time.wSecond << endl;
 	filesWriteListNumber << priority << endl;
 	filesWriteListNumber << endl;
 	filesWriteListNumber.close();
@@ -660,18 +675,19 @@ void redactorRecordFiles()
 	menu();
 
 }
-void deleteRecordList()
+void deleteRecordList(int d)
 {
 
 	int del;
 	int removeRedactor;
-
-	cout << " У вас имеется " << number << " записи." << endl << endl;
+	string fileName;
+	
+	cout << " У вас имеется " << d << " записи." << endl << endl;
 	cout << " Введите номер записи которую хотите удалить. " << endl;
 	
 	do
 	{
-		cout << " Ввести номер от 1 до " << number << ": ";
+		cout << " Ввести номер от 1 до " << d << ": ";
 		cin >> del; 
 		fileName = to_string(del);
 
@@ -694,7 +710,7 @@ void deleteRecordList()
 		filesListNumber << " ________________ " << endl;
 		filesListNumber.close();
 
-		if (del > number || del <= 0)
+		if (del > d || del <= 0)
 		{
 			cout << " Записи под номером " << del << " нет." << endl;
 			cout << " Попробуйте снова. " << endl << endl;
@@ -725,7 +741,7 @@ void deleteRecordList()
 				if (removeRedactor == 1)
 				{
 					system("cls");
-					redactorRecordFiles();
+					redactorRecordFiles(d);
 					break;
 				}
 				if (removeRedactor == 2)
@@ -733,8 +749,7 @@ void deleteRecordList()
 					cout << " Выполняется удаление записи. Пожалуйста подождите ";
 
 					string bufDel = "bufferDelete.txt";
-					string p;
-
+					
 					if (remove(bufDel.c_str()) == 0)
 					{
 						Sleep(700);
@@ -748,13 +763,14 @@ void deleteRecordList()
 
 					}
 
-					number--;
+					d--;
 
 					ofstream filesNumber;
 					filesNumber.open("number.txt", ios::out);
-					filesNumber << number;
+					filesNumber << d;
 					filesNumber.close();
 
+					string p;
 					p = fileName + ".txt";
 					remove(p.c_str()) == 0;
 				
@@ -791,6 +807,9 @@ void menu()
 	cout << " 7. Закрыть блокнот                   - нажмите [7]" << endl;
 
 	char enter;
+	int number = 0;
+	int numb = 0;
+
 	ifstream filesNumber("number.txt");
 	filesNumber >> number;
 
@@ -802,7 +821,7 @@ void menu()
 		if (enter == '1')
 		{
 			system("cls");
-			newRecordList();
+			newRecordList(number);
 			break;
 		}
 		if (enter == '2')
@@ -831,7 +850,7 @@ void menu()
 			else
 			{
 				system("cls");
-				deleteRecordList();
+				deleteRecordList(number);
 			}
 
 			break;
@@ -839,7 +858,7 @@ void menu()
 		if (enter == '3')
 		{
 			system("cls");
-			readRecordList();
+			readRecordList(number);
 			break;
 		}
 		if (enter == '4')
@@ -851,7 +870,7 @@ void menu()
 		if (enter == '5')
 		{
 			system("cls");
-			sortRecordList();
+			sortRecordList(number);
 			break;
 		}
 		if (enter == '6')
@@ -863,9 +882,10 @@ void menu()
 			string buffer;
 
 			string filename = "bufferWrite.txt";
+			string filesNum = "number.txt";
 			string del;
 
-			for (int i = 0; i < number; i++)
+			for (int i = 0; i <= number; i++)
 			{
 				buffer = to_string(count);
 				del = buffer + ".txt";
@@ -886,15 +906,10 @@ void menu()
 				Sleep(700);
 				cout << " ." << endl;
 
-				ofstream filesNumber;
-				filesNumber.open("number.txt", ios::out);
-				filesNumber << "0";
-				filesNumber.close();
-
-				ofstream filesBuffer;
-				filesBuffer.open("buffer.txt", ios::out);
-				filesBuffer << "0";
-				filesBuffer.close();
+				ofstream filesNum;
+				filesNum.open("number.txt", ios::out);
+				filesNum << numb;
+				filesNum.close();
 
 				cout << " Список успешно очищен.";
 			}
@@ -978,11 +993,6 @@ void cikl()
 		strcpy_s(description + (strlen(description) - strlen(temp)), strlen(description), temp);
 	}
 
-	while (temp = strchr(date, ' '))
-	{
-		*temp = '_';
-		strcpy_s(date + (strlen(date) - strlen(temp)), strlen(date), temp);
-	}
 }
 
 
