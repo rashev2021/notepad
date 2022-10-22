@@ -140,7 +140,7 @@ void newList(int c)
 	filesWriteListNumber << name << endl;
 	filesWriteListNumber << description << endl;
 	filesWriteListNumber << prioritet << endl;
-	filesWriteListNumber << time.wDay << "." << time.wMonth << "." << time.wYear << "___" << time.wHour << ":"
+	filesWriteListNumber << time.wDay << "." << time.wMonth << "." << time.wYear << "_/_" << time.wHour << ":"
 		                 << time.wMinute << ":" << time.wSecond << endl;
 	filesWriteListNumber << priority << endl;
 	filesWriteListNumber << endl;
