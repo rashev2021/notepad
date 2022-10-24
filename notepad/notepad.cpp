@@ -73,6 +73,7 @@ void newRecordList(int n)
 		cin.get();
 		gets_s(name, 50);
 
+		// при вводе описания у меня теряется первый символ
 		cout << " Введите описание записи: ";
 		cin.get();
 		gets_s(description, 100);
@@ -114,7 +115,7 @@ void newRecordList(int n)
 			break;
 		}
 
-}
+}  
 void newList(int c)
 {
 
@@ -769,6 +770,12 @@ void deleteRecordList(int d)
 
 					d--;
 
+					// здесь  не происходит удаления определенного файла. Он остается в папке.
+					string c;
+
+					c = fileName + ".txt";
+					remove(c.c_str()) == 0;
+
 					ofstream filesNumber;
 					filesNumber.open("number.txt", ios::out);
 					filesNumber << d;
@@ -885,6 +892,8 @@ void menu()
 			string filesNum = "number.txt";
 			string del;
 
+
+			// здесь происходит удаление всех созданных файлов. Работает
 			for (int i = 0; i <= number; i++)
 			{
 				buffer = to_string(count);
